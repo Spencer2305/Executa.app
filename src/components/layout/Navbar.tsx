@@ -152,10 +152,7 @@ export default function Navbar() {
             </div>
           ) : (
             <>
-              <Button asChild variant="ghost">
-                <Link href="/login">Sign in</Link>
-              </Button>
-              <Button asChild>
+              <Button asChild className="hover:text-white">
                 <Link href="/register">Get started</Link>
               </Button>
             </>
@@ -258,10 +255,7 @@ export default function Navbar() {
                 </>
               ) : (
                 <>
-                  <Button asChild variant="ghost" className="w-full">
-                    <Link href="/login">Sign in</Link>
-                  </Button>
-                  <Button asChild className="w-full">
+                  <Button asChild className="w-full hover:text-white">
                     <Link href="/register">Get started</Link>
                   </Button>
                 </>
