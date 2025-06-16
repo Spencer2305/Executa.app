@@ -131,7 +131,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-2">
               {!isDashboard && (
                 <Button asChild variant="ghost">
-                  <Link href="/dashboard">Dashboard</Link>
+                  <Link href="/register">Sign Up</Link>
                 </Button>
               )}
               <div className="relative group">
@@ -255,7 +255,7 @@ export default function Navbar() {
                 <>
                   {!isDashboard && (
                     <Button asChild variant="ghost" className="w-full justify-start">
-                      <Link href="/dashboard">Dashboard</Link>
+                      <Link href="/register">Sign Up</Link>
                     </Button>
                   )}
                   <Button 

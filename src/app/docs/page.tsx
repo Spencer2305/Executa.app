@@ -503,7 +503,7 @@ export default function DocsPage() {
                     </div>
 
                     <div>
-                      <h3 className="text-xl font-semibold mb-3">Dashboard Features</h3>
+                      <h3 className="text-xl font-semibold mb-3">Management Features</h3>
                       <ul className="space-y-2 text-muted-foreground">
                         <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2" /> Real-time conversation monitoring</li>
                         <li className="flex items-center"><CheckCircle className="h-4 w-4 text-green-600 mr-2" /> Export data to CSV/PDF</li>
