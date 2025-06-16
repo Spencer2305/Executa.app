@@ -109,77 +109,91 @@ const pulseGlow = {
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
   
   useEffect(() => {
+    // Set initial window size
+    setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    
     const updateMousePosition = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
     
+    const updateWindowSize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    
     window.addEventListener('mousemove', updateMousePosition);
+    window.addEventListener('resize', updateWindowSize);
     
     return () => {
       window.removeEventListener('mousemove', updateMousePosition);
+      window.removeEventListener('resize', updateWindowSize);
     };
   }, []);
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
       {/* Hero Section - Clean and Centered */}
-      <section className="relative py-24 lg:py-32 overflow-hidden">
+      <section className="relative py-16 sm:py-24 lg:py-32 overflow-hidden">
         {/* Clean background */}
         <div className="absolute inset-0">
           {/* Subtle grid pattern */}
           <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px]"></div>
           
           {/* Static purple circles with mouse-reactive movement */}
-          <motion.div
-            className="absolute top-1/4 left-1/3 w-3 h-3 bg-purple-500/30 rounded-full blur-sm pointer-events-none"
-            animate={{
-              x: (mousePosition.x - window.innerWidth / 2) * 0.02,
-              y: (mousePosition.y - window.innerHeight / 2) * 0.02,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 100,
-              damping: 20,
-            }}
-          />
-          <motion.div
-            className="absolute top-3/4 right-1/4 w-2 h-2 bg-brand-600/40 rounded-full blur-sm pointer-events-none"
-            animate={{
-              x: (mousePosition.x - window.innerWidth / 2) * -0.015,
-              y: (mousePosition.y - window.innerHeight / 2) * 0.015,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 80,
-              damping: 25,
-            }}
-          />
-          <motion.div
-            className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-purple-600/50 rounded-full pointer-events-none"
-            animate={{
-              x: (mousePosition.x - window.innerWidth / 2) * 0.01,
-              y: (mousePosition.y - window.innerHeight / 2) * -0.01,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 60,
-              damping: 30,
-            }}
-          />
-          <motion.div
-            className="absolute top-1/6 right-1/3 w-2.5 h-2.5 bg-purple-400/25 rounded-full blur-sm pointer-events-none"
-            animate={{
-              x: (mousePosition.x - window.innerWidth / 2) * -0.025,
-              y: (mousePosition.y - window.innerHeight / 2) * -0.02,
-            }}
-            transition={{
-              type: "spring",
-              stiffness: 90,
-              damping: 20,
-            }}
-          />
+          {windowSize.width > 0 && (
+            <>
+              <motion.div
+                className="absolute top-1/4 left-1/3 w-3 h-3 bg-purple-500/30 rounded-full blur-sm pointer-events-none"
+                animate={{
+                  x: (mousePosition.x - windowSize.width / 2) * 0.02,
+                  y: (mousePosition.y - windowSize.height / 2) * 0.02,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20,
+                }}
+              />
+              <motion.div
+                className="absolute top-3/4 right-1/4 w-2 h-2 bg-brand-600/40 rounded-full blur-sm pointer-events-none"
+                animate={{
+                  x: (mousePosition.x - windowSize.width / 2) * -0.015,
+                  y: (mousePosition.y - windowSize.height / 2) * 0.015,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 80,
+                  damping: 25,
+                }}
+              />
+              <motion.div
+                className="absolute top-1/2 left-3/4 w-1.5 h-1.5 bg-purple-600/50 rounded-full pointer-events-none"
+                animate={{
+                  x: (mousePosition.x - windowSize.width / 2) * 0.01,
+                  y: (mousePosition.y - windowSize.height / 2) * -0.01,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 60,
+                  damping: 30,
+                }}
+              />
+              <motion.div
+                className="absolute top-1/6 right-1/3 w-2.5 h-2.5 bg-purple-400/25 rounded-full blur-sm pointer-events-none"
+                animate={{
+                  x: (mousePosition.x - windowSize.width / 2) * -0.025,
+                  y: (mousePosition.y - windowSize.height / 2) * -0.02,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 90,
+                  damping: 20,
+                }}
+              />
+            </>
+          )}
         </div>
         
         <div className="container mx-auto px-4 relative z-10">
@@ -205,7 +219,7 @@ export default function Home() {
             
               {/* Professional headline */}
               <motion.h1 
-                className="text-5xl md:text-6xl lg:text-7xl font-kanit font-bold tracking-tight leading-tight uppercase"
+                className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-kanit font-bold tracking-tight leading-tight uppercase"
                 variants={staggerChild}
               >
                 <span className="block text-slate-900 mb-2">
@@ -214,14 +228,14 @@ export default function Home() {
                 <span className="block bg-gradient-to-r from-purple-600 via-brand-600 to-purple-800 bg-clip-text text-transparent">
                   AI Assistants
                 </span>
-                <span className="block text-slate-700 text-4xl md:text-5xl lg:text-6xl mt-2">
+                <span className="block text-slate-700 text-2xl sm:text-3xl md:text-5xl lg:text-6xl mt-2">
                   in Minutes, Not Months
                 </span>
               </motion.h1>
               
               {/* Professional description */}
               <motion.p 
-                className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto font-heebo"
+                className="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto font-heebo"
                 variants={staggerChild}
               >
                 Create intelligent AI solutions that transform your business. From customer support chatbots to knowledge assistants and onboarding guides - deploy any AI assistant that learns from your data.
@@ -232,7 +246,7 @@ export default function Home() {
                 className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 variants={staggerChild}
               >
-                <Button asChild size="lg" className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 font-heebo">
+                <Button asChild size="lg" className="bg-brand-600 hover:bg-brand-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 font-heebo">
                   <Link href="/register">
                     <Rocket className="mr-2 h-5 w-5" />
                     Start Building Now
@@ -273,7 +287,7 @@ export default function Home() {
       {/* Enterprise Features Section */}
       <motion.section 
         id="features" 
-        className="py-32 bg-slate-50 relative overflow-hidden"
+        className="py-16 sm:py-24 md:py-32 bg-slate-50 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-200px" }}
@@ -554,7 +568,7 @@ export default function Home() {
 
       {/* Integrations Section */}
       <motion.section 
-        className="py-24 bg-white relative overflow-hidden"
+        className="py-16 sm:py-20 md:py-24 bg-white relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
@@ -562,11 +576,11 @@ export default function Home() {
       >
         <div className="container mx-auto px-4">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-12 sm:mb-16"
             variants={fadeInUp}
           >
             <motion.h2 
-              className="text-4xl md:text-5xl lg:text-6xl font-kanit font-bold tracking-tight text-slate-900 mb-6 uppercase"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-kanit font-bold tracking-tight text-slate-900 mb-4 sm:mb-6 uppercase"
             >
               Seamless 
               <motion.span 
@@ -576,7 +590,7 @@ export default function Home() {
               </motion.span>
             </motion.h2>
             <motion.p 
-              className="text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto"
+              className="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto px-4"
             >
               Connect with your favorite tools and platforms. Our AI assistant integrates seamlessly 
               with your existing workflow to maximize productivity.
@@ -585,90 +599,93 @@ export default function Home() {
 
           {/* Integration Hub Graphic */}
           <motion.div 
-            className="relative max-w-6xl mx-auto my-24 md:my-32"
+            className="relative max-w-7xl mx-auto my-16 sm:my-20 md:my-24 lg:my-32 px-4"
             variants={fadeInUp}
           >
-            <div className="relative w-full h-32 flex items-center justify-center">
+            <div className="relative w-full h-28 sm:h-32 md:h-36 lg:h-40">
               {/* Horizontal Connection Line */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-1 bg-gradient-to-r from-blue-500 via-brand-500 to-purple-500 rounded-full opacity-30"></div>
+                <div className="w-full max-w-5xl h-1 bg-gradient-to-r from-blue-500 via-brand-500 to-purple-500 rounded-full opacity-30"></div>
               </div>
 
-              {/* Integration Service Nodes - Left Side (3 icons) */}
-              <div className="flex items-center justify-center space-x-8 md:space-x-16">
-                {[
-                  { name: 'Analytics', icon: BarChart3, color: 'from-blue-500 to-blue-600', delay: 0.3 },
-                  { name: 'CRM', icon: Users, color: 'from-orange-500 to-red-500', delay: 0.4 },
-                  { name: 'Database', icon: Database, color: 'from-emerald-500 to-green-600', delay: 0.5 }
-                ].map((service, index) => {
-                  const IconComponent = service.icon;
-                  return (
-                    <motion.div
-                      key={service.name}
-                      className={`relative w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group`}
-                      initial={{ scale: 0, opacity: 0, x: -50 }}
-                      whileInView={{ scale: 1, opacity: 1, x: 0 }}
-                      transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
-                      whileHover={{ scale: 1.2, rotate: 10 }}
-                    >
-                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-lg" />
-                      
-                      {/* Enhanced Tooltip */}
-                      <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 border border-white/10">
-                        {service.name}
-                        {/* Tooltip arrow */}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900/95"></div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+              {/* Integration Service Nodes Container */}
+              <div className="flex items-center justify-center h-full">
+                <div className="flex items-center justify-center space-x-4 sm:space-x-6 md:space-x-8 lg:space-x-12 xl:space-x-16 w-full max-w-6xl">
+                  {/* Left Side Icons */}
+                  {[
+                    { name: 'Analytics', icon: BarChart3, color: 'from-blue-500 to-blue-600', delay: 0.3 },
+                    { name: 'CRM', icon: Users, color: 'from-orange-500 to-red-500', delay: 0.4 },
+                    { name: 'Database', icon: Database, color: 'from-emerald-500 to-green-600', delay: 0.5 }
+                  ].map((service, index) => {
+                    const IconComponent = service.icon;
+                    return (
+                      <motion.div
+                        key={service.name}
+                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group flex-shrink-0`}
+                        initial={{ scale: 0, opacity: 0, x: -50 }}
+                        whileInView={{ scale: 1, opacity: 1, x: 0 }}
+                        transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                      >
+                        <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white drop-shadow-lg" />
+                        
+                        {/* Enhanced Tooltip */}
+                        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 border border-white/10">
+                          {service.name}
+                          {/* Tooltip arrow */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900/95"></div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
 
-                {/* Central Hub */}
-                <motion.div
-                  className="relative z-30 w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-brand-500 via-brand-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl mx-8 md:mx-16"
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 150 }}
-                >
-                  <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center">
-                    <Zap className="w-10 h-10 md:w-12 md:h-12 text-brand-600" />
-                  </div>
-                </motion.div>
+                  {/* Central Hub */}
+                  <motion.div
+                    className="relative z-30 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-36 xl:h-36 bg-gradient-to-br from-brand-500 via-brand-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl flex-shrink-0"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    transition={{ delay: 0.2, type: "spring", stiffness: 150 }}
+                  >
+                    <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-22 xl:h-22 bg-white rounded-full flex items-center justify-center">
+                      <Zap className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 xl:w-11 xl:h-11 text-brand-600" />
+                    </div>
+                  </motion.div>
 
-                {/* Integration Service Nodes - Right Side (3 icons) */}
-                {[
-                  { name: 'Storage', icon: Cloud, color: 'from-cyan-500 to-blue-500', delay: 0.6 },
-                  { name: 'Communication', icon: MessageCircle, color: 'from-purple-500 to-pink-500', delay: 0.7 },
-                  { name: 'Automation', icon: Settings, color: 'from-gray-600 to-gray-700', delay: 0.8 }
-                ].map((service, index) => {
-                  const IconComponent = service.icon;
-                  return (
-                    <motion.div
-                      key={service.name}
-                      className={`relative w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group`}
-                      initial={{ scale: 0, opacity: 0, x: 50 }}
-                      whileInView={{ scale: 1, opacity: 1, x: 0 }}
-                      transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
-                      whileHover={{ scale: 1.2, rotate: 10 }}
-                    >
-                      <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white drop-shadow-lg" />
-                      
-                      {/* Enhanced Tooltip */}
-                      <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 border border-white/10">
-                        {service.name}
-                        {/* Tooltip arrow */}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900/95"></div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
+                  {/* Right Side Icons */}
+                  {[
+                    { name: 'Storage', icon: Cloud, color: 'from-cyan-500 to-blue-500', delay: 0.6 },
+                    { name: 'Communication', icon: MessageCircle, color: 'from-purple-500 to-pink-500', delay: 0.7 },
+                    { name: 'Automation', icon: Settings, color: 'from-gray-600 to-gray-700', delay: 0.8 }
+                  ].map((service, index) => {
+                    const IconComponent = service.icon;
+                    return (
+                      <motion.div
+                        key={service.name}
+                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group flex-shrink-0`}
+                        initial={{ scale: 0, opacity: 0, x: 50 }}
+                        whileInView={{ scale: 1, opacity: 1, x: 0 }}
+                        transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
+                        whileHover={{ scale: 1.1, rotate: 10 }}
+                      >
+                        <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white drop-shadow-lg" />
+                        
+                        {/* Enhanced Tooltip */}
+                        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-slate-900/95 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-30 border border-white/10">
+                          {service.name}
+                          {/* Tooltip arrow */}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900/95"></div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </motion.div>
 
           {/* Integration Features */}
           <motion.div 
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto px-4"
             variants={staggerContainer}
           >
             {[
@@ -699,12 +716,12 @@ export default function Home() {
                     whileHover={{ scale: 1.05 }}
                     transition={{ type: "spring", stiffness: 400 }}
                   >
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 p-4 group-hover:shadow-xl group-hover:shadow-brand-500/25 transition-all duration-300 shadow-lg">
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 p-3 sm:p-4 group-hover:shadow-xl group-hover:shadow-brand-500/25 transition-all duration-300 shadow-lg">
                       <FeatureIcon className="w-8 h-8 text-white" />
                     </div>
                   </motion.div>
-                  <h4 className="text-xl font-semibold text-slate-900 mb-3">{feature.title}</h4>
-                  <p className="text-slate-600 leading-relaxed">{feature.description}</p>
+                  <h4 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2 sm:mb-3">{feature.title}</h4>
+                  <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{feature.description}</p>
                 </motion.div>
               );
             })}
@@ -714,7 +731,7 @@ export default function Home() {
 
        {/* Professional Stats Section */}
       <motion.section 
-         className="py-32 bg-slate-50 relative overflow-hidden"
+         className="py-16 sm:py-24 md:py-32 bg-slate-50 relative overflow-hidden"
         initial="hidden"
         whileInView="visible"
          viewport={{ once: true }}
@@ -727,7 +744,7 @@ export default function Home() {
              className="mx-auto max-w-4xl text-center mb-20"
             variants={fadeInUp}
           >
-             <h2 className="text-4xl md:text-6xl font-kanit font-bold tracking-tight text-slate-900 mb-6 uppercase">
+             <h2 className="text-3xl sm:text-4xl md:text-6xl font-kanit font-bold tracking-tight text-slate-900 mb-6 uppercase">
                Trusted by Industry Leaders
                <span className="bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent block">
                  Worldwide
