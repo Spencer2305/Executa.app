@@ -3,8 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import Image from "next/image";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { 
   Bot, 
@@ -20,17 +19,7 @@ import {
   Rocket,
   Sparkles,
   Star,
-  Circle,
-  Triangle,
-  Square,
   Heart,
-  Hexagon,
-  Zap as Lightning,
-  Wand2,
-  Palette,
-  Music,
-  Wind,
-  Waves,
   Users,
   Play,
   Plug,
@@ -75,37 +64,7 @@ const staggerChild = {
   }
 };
 
-const floatingIcons = {
-  animate: {
-    y: [0, -20, 0],
-    rotate: [0, 10, 0],
-    scale: [1, 1.1, 1]
-  }
-};
 
-const spiralMotion = {
-  animate: {
-    rotate: 360,
-    scale: [1, 1.2, 1],
-  }
-};
-
-const liquidMotion = {
-  animate: {
-    borderRadius: ["50%", "60% 40% 70% 30%", "40% 60% 30% 70%", "50%"],
-    scale: [1, 1.1, 0.9, 1],
-  }
-};
-
-const pulseGlow = {
-  animate: {
-    boxShadow: [
-      "0 0 20px rgba(100, 0, 254, 0.3)",
-      "0 0 40px rgba(100, 0, 254, 0.6)",
-      "0 0 20px rgba(100, 0, 254, 0.3)"
-    ]
-  }
-};
 
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -616,7 +575,7 @@ export default function Home() {
                     { name: 'Analytics', icon: BarChart3, color: 'from-blue-500 to-blue-600', delay: 0.3 },
                     { name: 'CRM', icon: Users, color: 'from-orange-500 to-red-500', delay: 0.4 },
                     { name: 'Database', icon: Database, color: 'from-emerald-500 to-green-600', delay: 0.5 }
-                  ].map((service, index) => {
+                  ].map((service) => {
                     const IconComponent = service.icon;
                     return (
                       <motion.div
@@ -656,7 +615,7 @@ export default function Home() {
                     { name: 'Storage', icon: Cloud, color: 'from-cyan-500 to-blue-500', delay: 0.6 },
                     { name: 'Communication', icon: MessageCircle, color: 'from-purple-500 to-pink-500', delay: 0.7 },
                     { name: 'Automation', icon: Settings, color: 'from-gray-600 to-gray-700', delay: 0.8 }
-                  ].map((service, index) => {
+                  ].map((service) => {
                     const IconComponent = service.icon;
                     return (
                       <motion.div
@@ -1261,7 +1220,7 @@ export default function Home() {
              >
                {[
                  {
-                   icon: Lightning,
+                   icon: Zap,
                    title: "60 Second Setup",
                    description: "Fastest deployment in the industry",
                    color: "from-brand-500 to-brand-600"

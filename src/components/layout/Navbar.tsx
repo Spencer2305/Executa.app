@@ -10,12 +10,7 @@ import {
   User,
   LogOut,
   Settings,
-  CreditCard,
-  Plus,
-  Bot,
-  BarChart3,
-  Cog,
-  LayoutDashboard
+  CreditCard
 } from "lucide-react";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
@@ -38,15 +33,7 @@ export default function Navbar() {
     }`;
   };
 
-  // Helper function for mobile link classes
-  const getMobileLinkClasses = (href: string) => {
-    const isActive = pathname === href;
-    return `block py-2 text-sm font-medium transition-colors ${
-      isActive 
-        ? 'text-brand-600 bg-brand-50 px-3 rounded-md' 
-        : 'text-muted-foreground hover:text-brand-600 hover:bg-transparent'
-    }`;
-  };
+
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

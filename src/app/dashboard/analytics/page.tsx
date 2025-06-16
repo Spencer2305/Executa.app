@@ -11,9 +11,7 @@ import {
   MessageSquare, 
   Users, 
   Clock,
-  Calendar,
   Download,
-  Filter,
   ArrowUpRight,
   ArrowDownRight,
   Eye,
@@ -55,7 +53,7 @@ export default function AnalyticsPage() {
           <div>
             <h1 className="text-3xl font-bold">Analytics</h1>
             <p className="text-muted-foreground mt-1">
-              Monitor your AI assistants' performance and usage
+              Monitor your AI assistants&apos; performance and usage
             </p>
           </div>
           <div className="flex items-center space-x-2">

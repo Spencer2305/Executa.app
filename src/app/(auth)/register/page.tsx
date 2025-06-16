@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useUserStore } from "@/state/userStore";
-import { authApi } from "@/utils/api";
-import { Bot, Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
