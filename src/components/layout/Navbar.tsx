@@ -118,7 +118,7 @@ export default function Navbar() {
             <div className="flex items-center space-x-2">
               {!isDashboard && (
                 <Button asChild variant="ghost">
-                  <Link href="/register">Sign Up</Link>
+                  <Link href="/waitlist">Join Waitlist</Link>
                 </Button>
               )}
               <div className="relative group">
@@ -239,7 +239,7 @@ export default function Navbar() {
                 <>
                   {!isDashboard && (
                     <Button asChild variant="ghost" className="w-full justify-start">
-                      <Link href="/register">Sign Up</Link>
+                      <Link href="/waitlist">Join Waitlist</Link>
                     </Button>
                   )}
                   <Button 
@@ -256,7 +256,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <Button asChild className="w-full hover:text-white">
-                    <Link href="/register">Get started</Link>
+                    <Link href="/waitlist">Join Waitlist</Link>
                   </Button>
                 </>
               )}

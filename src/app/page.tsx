@@ -206,9 +206,9 @@ export default function Home() {
                 variants={staggerChild}
               >
                 <Button asChild size="lg" className="bg-brand-600 hover:bg-brand-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 font-heebo">
-                  <Link href="/register">
+                  <Link href="/waitlist">
                     <Rocket className="mr-2 h-5 w-5" />
-                    Start Building Now
+                    Join Waitlist
                   </Link>
                 </Button>
                 
@@ -1023,8 +1023,8 @@ export default function Home() {
                   "Email support",
                   "Basic analytics"
                 ],
-                cta: "Get Started",
-                href: "/register",
+                cta: "Join Waitlist",
+                href: "/waitlist",
                 gradient: "from-brand-500 to-brand-600"
               },
               {
@@ -1040,8 +1040,8 @@ export default function Home() {
                   "Custom branding",
                   "API access"
                 ],
-                cta: "Start Free Trial",
-                href: "/register",
+                cta: "Join Waitlist",
+                href: "/waitlist",
                 popular: true,
                 gradient: "from-brand-500 to-brand-600"
               },
@@ -1190,12 +1190,12 @@ export default function Home() {
                 whileTap={{ scale: 0.95 }}
                >
                  <Button asChild size="lg" className="relative bg-brand-600 hover:bg-brand-700 text-white px-10 py-8 text-xl font-bold rounded-xl shadow-xl">
-                  <Link href="/register">
+                  <Link href="/waitlist">
                      <motion.div
                        className="flex items-center"
                      >
                        <Rocket className="mr-3 h-6 w-6" />
-                       Start Building Now
+                       Join Waitlist
                      </motion.div>
                   </Link>
                 </Button>
