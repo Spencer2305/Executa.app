@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import mailchimp from '@mailchimp/mailchimp_marketing';
 
 // Create transporter - you'll need to configure this with your email service
 const createTransporter = () => {
@@ -22,6 +23,51 @@ const createTransporter = () => {
   //     pass: process.env.SMTP_PASS,
   //   },
   // });
+};
+
+// Configure Mailchimp
+const configureMailchimp = () => {
+  if (process.env.MAILCHIMP_API_KEY && process.env.MAILCHIMP_SERVER_PREFIX) {
+    mailchimp.setConfig({
+      apiKey: process.env.MAILCHIMP_API_KEY,
+      server: process.env.MAILCHIMP_SERVER_PREFIX, // e.g., "us21"
+    });
+    return true;
+  }
+  return false;
+};
+
+// Add contact to Mailchimp list
+const addToMailchimp = async (email: string, firstName: string, lastName: string = '', company: string = '') => {
+  try {
+    const listId = process.env.MAILCHIMP_LIST_ID;
+    if (!listId) {
+      console.log('Mailchimp list ID not configured');
+      return false;
+    }
+
+    const response = await mailchimp.lists.addListMember(listId, {
+      email_address: email,
+      status: 'subscribed',
+      merge_fields: {
+        FNAME: firstName,
+        LNAME: lastName,
+        COMPANY: company,
+      },
+      tags: ['Waitlist', 'Executa-AI']
+    });
+
+    console.log('Successfully added to Mailchimp:', email);
+    return true;
+  } catch (error: any) {
+    console.error('Mailchimp error:', error);
+    // If contact already exists, that's okay
+    if (error.status === 400 && error.response?.body?.title === 'Member Exists') {
+      console.log('Contact already exists in Mailchimp');
+      return true;
+    }
+    return false;
+  }
 };
 
 export async function POST(request: NextRequest) {
@@ -63,6 +109,22 @@ This person has joined the Executa AI waitlist and is interested in early access
     console.log('--- WAITLIST SIGNUP ---');
     console.log(emailContent);
     console.log('--- END ---');
+
+    // Add to Mailchimp if configured
+    if (configureMailchimp()) {
+      console.log('Adding to Mailchimp...');
+      const [firstName, ...lastNameParts] = name.split(' ');
+      const lastName = lastNameParts.join(' ');
+      
+      const mailchimpSuccess = await addToMailchimp(email, firstName, lastName, company);
+      if (mailchimpSuccess) {
+        console.log('✅ Successfully added to Mailchimp');
+      } else {
+        console.log('❌ Failed to add to Mailchimp');
+      }
+    } else {
+      console.log('Mailchimp not configured - skipping');
+    }
 
     // TODO: When ready for production, uncomment the email sending code below
     // and set up EMAIL_USER and EMAIL_PASS environment variables
