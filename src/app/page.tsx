@@ -243,7 +243,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Enterprise Features Section */}
+      {/* Process Timeline Section */}
       <motion.section 
         id="features" 
         className="py-16 sm:py-24 md:py-32 bg-slate-50 relative overflow-hidden"
@@ -275,7 +275,7 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-        <motion.div
+          <motion.div
             className="mx-auto max-w-3xl text-center mb-20"
             variants={fadeInUp}
           >
@@ -283,109 +283,160 @@ export default function Home() {
               className="text-4xl md:text-6xl font-kanit font-bold tracking-tight mb-6 uppercase"
               style={{ color: "#6400fe" }}
             >
-              Enterprise Features
+              How It Works
             </motion.h2>
             <motion.p 
               className="text-xl text-gray-600 leading-relaxed"
             >
-              Powerful capabilities designed for modern businesses and development teams.
+              From upload to deployment in three simple steps. Build powerful AI assistants in minutes, not months.
             </motion.p>
           </motion.div>
           
+          {/* Vertical Timeline */}
           <motion.div 
-            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto"
+            className="max-w-4xl mx-auto relative"
             variants={staggerContainer}
           >
+            {/* Central timeline line */}
+            <motion.div 
+              className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-brand-400 via-brand-500 to-brand-600 rounded-full"
+              style={{ height: "calc(100% - 80px)", top: "40px" }}
+              initial={{ scaleY: 0 }}
+              whileInView={{ scaleY: 1 }}
+              transition={{ duration: 1.5, ease: "easeInOut" }}
+            />
+
+            {/* Timeline Steps */}
             {[
               {
+                step: "01",
                 icon: Upload,
-                title: "Document Upload",
-                description: "Seamlessly upload and process documents, PDFs, and knowledge bases. Transform static content into interactive AI-powered resources.",
-                color: "from-purple-500 to-brand-600"
+                title: "Upload Your Knowledge",
+                description: "Simply drag and drop your documents, PDFs, FAQs, or paste your content. Our AI instantly learns from your materials and transforms them into an intelligent knowledge base.",
+                features: ["Multiple file formats", "Bulk upload support", "Auto-processing", "Instant training"],
+                color: "from-blue-500 to-blue-600",
+                delay: 0.2
               },
               {
-                icon: Brain,
-                title: "Advanced AI",
-                description: "Powered by GPT-4 and cutting-edge language models. Deliver accurate, contextual responses with enterprise-grade reliability.",
-                color: "from-purple-500 to-brand-600"
+                step: "02", 
+                icon: Plug,
+                title: "Connect Your Tools",
+                description: "Seamlessly integrate with your existing workflow. Connect Gmail, HubSpot, Monday.com, Shopify, and 50+ other platforms to supercharge your AI assistant.",
+                features: ["Gmail integration", "CRM connections", "E-commerce platforms", "Project management tools"],
+                color: "from-green-500 to-green-600",
+                delay: 0.4
               },
               {
-                icon: Zap,
-                title: "Rapid Deployment",
-                description: "Deploy production-ready chatbots in under 60 seconds. From upload to live deployment with zero technical complexity.",
-                color: "from-purple-500 to-brand-600"
-              },
-              {
+                step: "03",
                 icon: Globe,
-                title: "Enterprise Scale",
-                description: "Handle thousands of concurrent conversations with auto-scaling infrastructure. Built for high-volume enterprise workloads.",
-                color: "from-purple-500 to-brand-600"
-              },
-              {
-                icon: Shield,
-                title: "Enterprise Security",
-                description: "SOC 2 compliant with end-to-end encryption. Your data is protected with bank-level security standards.",
-                color: "from-purple-500 to-brand-600"
-              },
-              {
-                icon: BarChart3,
-                title: "Advanced Analytics",
-                description: "Comprehensive insights and reporting. Track performance, user interactions, and optimize your AI assistant's effectiveness.",
-                color: "from-purple-500 to-brand-600"
+                title: "Deploy Anywhere",
+                description: "Launch your AI assistant in seconds with a simple embed code or iframe. Add it to your website, customer portal, or any platform where your users need instant support.",
+                features: ["One-click embed", "Custom branding", "Mobile responsive", "Instant activation"],
+                color: "from-purple-500 to-purple-600",
+                delay: 0.6
               }
-            ].map((feature, index) => (
+            ].map((item, index) => (
               <motion.div
                 key={index}
                 variants={staggerChild}
-                className="group"
+                className="relative flex items-center mb-16 last:mb-0"
               >
-                <motion.div>
-                  <Card 
-                    className="relative border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-500 rounded-2xl overflow-hidden h-full bg-white"
+                {/* Step indicator */}
+                <motion.div
+                  className="absolute left-1/2 transform -translate-x-1/2 z-20"
+                  initial={{ scale: 0, rotate: -180 }}
+                  whileInView={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: item.delay, duration: 0.6, type: "spring", stiffness: 200 }}
+                >
+                  <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center shadow-2xl border-4 border-white`}>
+                    <item.icon className="w-8 h-8 text-white" />
+                  </div>
+                  {/* Step number */}
+                  <motion.div
+                    className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-gray-100"
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    transition={{ delay: item.delay + 0.3, type: "spring" }}
                   >
-                    {/* Animated background gradient */}
-                    <motion.div
-                      className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}
-                      animate={{
-                        scale: [1, 1.1, 1],
-                      }}
-                      transition={{ duration: 4, repeat: Infinity }}
-                    />
-                    
-                    <CardHeader className="relative z-10 pb-6">
-                      <motion.div
-                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} p-4 mb-6 relative overflow-hidden`}
-                        whileHover={{ rotate: 10, scale: 1.1 }}
-                        animate={{
-                          boxShadow: [
-                            "0 0 20px rgba(100, 0, 254, 0.2)",
-                            "0 0 40px rgba(100, 0, 254, 0.4)",
-                            "0 0 20px rgba(100, 0, 254, 0.2)"
-                          ]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
+                    <span className="text-xs font-bold text-gray-700">{item.step}</span>
+                  </motion.div>
+                </motion.div>
+
+                {/* Content card - alternating sides */}
+                <motion.div
+                  className={`w-5/12 ${index % 2 === 0 ? 'mr-auto pr-8' : 'ml-auto pl-8'}`}
+                  initial={{ 
+                    opacity: 0, 
+                    x: index % 2 === 0 ? -50 : 50,
+                    y: 30
+                  }}
+                  whileInView={{ 
+                    opacity: 1, 
+                    x: 0,
+                    y: 0
+                  }}
+                  transition={{ delay: item.delay + 0.2, duration: 0.6 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                >
+                  <Card className="bg-white shadow-xl border-0 rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                    <CardContent className="p-8">
+                      <motion.h3 
+                        className={`text-2xl font-bold mb-4 bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
+                        whileHover={{ scale: 1.05 }}
                       >
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                          className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"
-                        />
-                        <feature.icon className="h-8 w-8 text-white relative z-10" />
-                      </motion.div>
-                      <CardTitle className="text-2xl group-hover:text-purple-700 transition-colors duration-300">{feature.title}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                      <CardDescription className="text-base leading-relaxed text-gray-600 group-hover:text-gray-700">
-                        {feature.description}
-                      </CardDescription>
+                        {item.title}
+                      </motion.h3>
+                      <p className="text-gray-600 mb-6 leading-relaxed">
+                        {item.description}
+                      </p>
+                      
+                      {/* Feature bullets */}
+                      <div className="grid grid-cols-2 gap-2">
+                        {item.features.map((feature, featureIndex) => (
+                          <motion.div
+                            key={featureIndex}
+                            className="flex items-center text-sm text-gray-500"
+                            initial={{ opacity: 0, x: -10 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            transition={{ delay: item.delay + 0.4 + (featureIndex * 0.1) }}
+                          >
+                            <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${item.color} mr-2 flex-shrink-0`} />
+                            {feature}
+                          </motion.div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 </motion.div>
+
+                {/* Connecting line animation */}
+                <motion.div
+                  className={`absolute top-10 ${index % 2 === 0 ? 'left-1/2 ml-10' : 'right-1/2 mr-10'} w-8 h-0.5 bg-gradient-to-r ${item.color} opacity-60`}
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  transition={{ delay: item.delay + 0.5, duration: 0.4 }}
+                />
               </motion.div>
             ))}
           </motion.div>
+
+          {/* Call to action at the bottom */}
+          <motion.div 
+            className="text-center mt-16"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
+          >
+            <p className="text-lg text-gray-600 mb-6">Ready to build your AI assistant?</p>
+            <Button asChild size="lg" className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+              <Link href="/waitlist">
+                <Rocket className="mr-2 h-5 w-5" />
+                Start Building Now
+              </Link>
+            </Button>
+          </motion.div>
         </div>
-             </motion.section>
+      </motion.section>
 
 
 
