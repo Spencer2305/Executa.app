@@ -3,10 +3,23 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Rocket, ArrowLeft, Users, Bell, Star } from "lucide-react";
+import { CheckCircle, Rocket, ArrowLeft, Users, Bell, Star, Copy, Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 export default function ThankYouPage() {
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText('https://executa.ai');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
       <div className="w-full max-w-md space-y-6">
@@ -78,16 +91,10 @@ export default function ThankYouPage() {
 
               {/* CTA Buttons */}
               <div className="space-y-3">
-                <Button asChild className="w-full">
+                <Button asChild className="w-full hover:text-white">
                   <Link href="/">
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     Back to Home
-                  </Link>
-                </Button>
-                
-                <Button asChild variant="outline" className="w-full">
-                  <Link href="mailto:info@executasolutions.com?subject=Waitlist Question">
-                    Questions? Contact Us
                   </Link>
                 </Button>
               </div>
@@ -106,11 +113,23 @@ export default function ThankYouPage() {
           <p className="text-xs text-muted-foreground">
             Know someone who could benefit from AI assistants? Share Executa with them!
           </p>
-          <Button asChild variant="ghost" size="sm" className="text-xs">
-            <Link href="/">
-              <Rocket className="mr-2 h-3 w-3" />
-              Share Executa
-            </Link>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="text-xs" 
+            onClick={handleShare}
+          >
+            {copied ? (
+              <>
+                <Check className="mr-2 h-3 w-3" />
+                Link Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="mr-2 h-3 w-3" />
+                Share Executa
+              </>
+            )}
           </Button>
         </motion.div>
 

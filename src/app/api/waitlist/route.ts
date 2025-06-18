@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create email content
+    // Create email content for logging
     const emailContent = `
 New Waitlist Signup - Executa AI
 
@@ -59,71 +59,35 @@ Signed up at: ${new Date().toLocaleString()}
 This person has joined the Executa AI waitlist and is interested in early access to your AI assistant platform.
     `.trim();
 
-    // For development/testing without email setup
-    if (process.env.NODE_ENV === 'development' && !process.env.EMAIL_USER) {
-      console.log('--- WAITLIST SIGNUP (Development Mode) ---');
-      console.log(emailContent);
-      console.log('--- END ---');
+    // Log the signup (for development, this will be the only action)
+    console.log('--- WAITLIST SIGNUP ---');
+    console.log(emailContent);
+    console.log('--- END ---');
+
+    // TODO: When ready for production, uncomment the email sending code below
+    // and set up EMAIL_USER and EMAIL_PASS environment variables
+    
+    /*
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const transporter = createTransporter();
       
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Waitlist signup successful (development mode)' 
+      // Send notification email
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: 'info@executasolutions.com',
+        subject: `New Waitlist Signup: ${name}`,
+        text: emailContent,
+      });
+
+      // Send confirmation email to user
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: 'Welcome to the Executa AI Waitlist!',
+        html: `<p>Hi ${name},</p><p>Thank you for joining our waitlist!</p>`,
       });
     }
-
-    // Send email to info@executasolutions.com
-    const transporter = createTransporter();
-    
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: 'info@executasolutions.com',
-      subject: `New Waitlist Signup: ${name}`,
-      text: emailContent,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333; border-bottom: 2px solid #6366f1; padding-bottom: 10px;">
-            New Waitlist Signup - Executa AI
-          </h2>
-          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Company:</strong> ${company || 'Not provided'}</p>
-            <p><strong>Signed up at:</strong> ${new Date().toLocaleString()}</p>
-          </div>
-          <p style="color: #666;">
-            This person has joined the Executa AI waitlist and is interested in early access to your AI assistant platform.
-          </p>
-        </div>
-      `,
-    });
-
-    // Optionally, send a confirmation email to the user
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject: 'Welcome to the Executa AI Waitlist!',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #6366f1;">Welcome to Executa AI!</h2>
-          <p>Hi ${name},</p>
-          <p>Thank you for joining our waitlist! You're now part of an exclusive group that will get early access to the future of AI assistants.</p>
-          
-          <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h3 style="color: #0369a1; margin-top: 0;">What's next?</h3>
-            <ul style="color: #374151;">
-              <li>We'll notify you first when Executa launches</li>
-              <li>You'll get exclusive access to beta features</li>
-              <li>Priority customer support</li>
-              <li>Special launch pricing</li>
-            </ul>
-          </div>
-          
-          <p>If you have any questions, feel free to reply to this email or contact us at <a href="mailto:info@executasolutions.com">info@executasolutions.com</a>.</p>
-          
-          <p>Best regards,<br>The Executa Team</p>
-        </div>
-      `,
-    });
+    */
 
     return NextResponse.json({ 
       success: true, 

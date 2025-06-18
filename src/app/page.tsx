@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Bot, 
   Upload, 
@@ -27,7 +27,9 @@ import {
   Database,
   Cloud,
   MessageCircle,
-  Settings
+  Settings,
+  Clock,
+  Loader2
 } from "lucide-react";
 
 // Professional animation variants
@@ -66,9 +68,19 @@ const staggerChild = {
 
 
 
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
 export default function Home() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
     // Set initial window size
@@ -90,6 +102,67 @@ export default function Home() {
       window.removeEventListener('resize', updateWindowSize);
     };
   }, []);
+
+  // Scroll to bottom when new messages are added
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [chatMessages]);
+
+  const sendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
+
+    const userMessage: ChatMessage = {
+      role: 'user',
+      content: inputMessage.trim(),
+      timestamp: Date.now()
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const assistantMessage: ChatMessage = {
+          role: 'assistant',
+          content: data.response,
+          timestamp: Date.now()
+        };
+        setChatMessages(prev => [...prev, assistantMessage]);
+      } else {
+        throw new Error(data.error || 'Failed to get response');
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: Date.now()
+      };
+      setChatMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   return (
     <main className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
@@ -215,7 +288,7 @@ export default function Home() {
                 <Button asChild variant="outline" size="lg" className="border-brand-300 text-brand-700 hover:bg-brand-50 hover:text-brand-700 px-8 py-4 text-lg font-semibold font-heebo">
                   <Link href="#demo">
                     <Play className="mr-2 h-5 w-5" />
-                    Watch Demo
+                    Try Demo
                   </Link>
                 </Button>
               </motion.div>
@@ -299,8 +372,13 @@ export default function Home() {
           >
             {/* Central timeline line */}
             <motion.div 
-              className="absolute left-1/2 transform -translate-x-0.5 w-1 bg-gradient-to-b from-brand-400 via-brand-500 to-brand-600 rounded-full"
-              style={{ height: "calc(100% - 80px)", top: "40px" }}
+              className="absolute w-1 bg-gradient-to-b from-brand-400 via-brand-500 to-brand-600 rounded-full"
+              style={{ 
+                height: "calc(100% - 80px)", 
+                top: "40px",
+                left: "50%",
+                marginLeft: "-2px"
+              }}
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               transition={{ duration: 1.5, ease: "easeInOut" }}
@@ -314,7 +392,7 @@ export default function Home() {
                 title: "Upload Your Knowledge",
                 description: "Simply drag and drop your documents, PDFs, FAQs, or paste your content. Our AI instantly learns from your materials and transforms them into an intelligent knowledge base.",
                 features: ["Multiple file formats", "Bulk upload support", "Auto-processing", "Instant training"],
-                color: "from-purple-500 to-purple-600",
+                color: "from-[#6400fe] to-[#6400fe]",
                 delay: 0.2
               },
               {
@@ -323,7 +401,7 @@ export default function Home() {
                 title: "Connect Your Tools",
                 description: "Seamlessly integrate with your existing workflow. Connect Gmail, HubSpot, Monday.com, Shopify, and 50+ other platforms to supercharge your AI assistant.",
                 features: ["Gmail integration", "CRM connections", "E-commerce platforms", "Project management tools"],
-                color: "from-purple-500 to-purple-600",
+                color: "from-[#6400fe] to-[#6400fe]",
                 delay: 0.4
               },
               {
@@ -332,7 +410,7 @@ export default function Home() {
                 title: "Deploy Anywhere",
                 description: "Launch your AI assistant in seconds with a simple embed code or iframe. Add it to your website, customer portal, or any platform where your users need instant support.",
                 features: ["One-click embed", "Custom branding", "Mobile responsive", "Instant activation"],
-                color: "from-purple-500 to-purple-600",
+                color: "from-[#6400fe] to-[#6400fe]",
                 delay: 0.6
               }
             ].map((item, index) => (
@@ -343,7 +421,11 @@ export default function Home() {
               >
                 {/* Step indicator - centered */}
                 <motion.div
-                  className="absolute left-1/2 top-0 transform -translate-x-1/2 z-20 flex flex-col items-center"
+                  className="absolute top-0 z-20"
+                  style={{
+                    left: "50%",
+                    marginLeft: "-40px"
+                  }}
                   initial={{ scale: 0, rotate: -180 }}
                   whileInView={{ scale: 1, rotate: 0 }}
                   transition={{ delay: item.delay, duration: 0.6, type: "spring", stiffness: 200 }}
@@ -376,13 +458,11 @@ export default function Home() {
                     y: 0
                   }}
                   transition={{ delay: item.delay + 0.2, duration: 0.6 }}
-                  whileHover={{ scale: 1.02, y: -5 }}
                 >
-                  <Card className="bg-white shadow-xl border-0 rounded-2xl overflow-hidden group hover:shadow-2xl transition-all duration-300">
+                  <Card className="bg-white shadow-xl border-0 rounded-2xl overflow-hidden">
                     <CardContent className="p-8">
                       <motion.h3 
-                        className={`text-2xl font-bold mb-4 bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}
-                        whileHover={{ scale: 1.05 }}
+                        className={`text-2xl font-kanit font-bold mb-4 bg-gradient-to-r ${item.color} bg-clip-text text-transparent uppercase tracking-tight`}
                       >
                         {item.title}
                       </motion.h3>
@@ -428,7 +508,7 @@ export default function Home() {
             transition={{ delay: 0.8, duration: 0.6 }}
           >
             <p className="text-lg text-gray-600 mb-6">Ready to build your AI assistant?</p>
-            <Button asChild size="lg" className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
+            <Button asChild size="lg" className="bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white hover:text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
               <Link href="/waitlist">
                 <Rocket className="mr-2 h-5 w-5" />
                 Start Building Now
@@ -495,11 +575,10 @@ export default function Home() {
                     return (
                       <motion.div
                         key={service.name}
-                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group flex-shrink-0`}
+                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 flex-shrink-0 group`}
                         initial={{ scale: 0, opacity: 0, x: -50 }}
                         whileInView={{ scale: 1, opacity: 1, x: 0 }}
                         transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
-                        whileHover={{ scale: 1.1, rotate: 10 }}
                       >
                         <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white drop-shadow-lg" />
                         
@@ -535,11 +614,10 @@ export default function Home() {
                     return (
                       <motion.div
                         key={service.name}
-                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 group flex-shrink-0`}
+                        className={`relative w-12 h-12 sm:w-16 sm:h-16 md:w-18 md:h-18 lg:w-20 lg:h-20 bg-gradient-to-br ${service.color} rounded-full shadow-xl flex items-center justify-center border-2 border-white/20 backdrop-blur-sm z-20 flex-shrink-0 group`}
                         initial={{ scale: 0, opacity: 0, x: 50 }}
                         whileInView={{ scale: 1, opacity: 1, x: 0 }}
                         transition={{ delay: service.delay, type: "spring", stiffness: 200, damping: 15 }}
-                        whileHover={{ scale: 1.1, rotate: 10 }}
                       >
                         <IconComponent className="w-4 h-4 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-white drop-shadow-lg" />
                         
@@ -584,21 +662,101 @@ export default function Home() {
                 <motion.div
                   key={index}
                   variants={staggerChild}
-                  className="text-center group"
+                  className="text-center"
                 >
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 p-3 sm:p-4 group-hover:shadow-xl group-hover:shadow-brand-500/25 transition-all duration-300 shadow-lg">
-                      <FeatureIcon className="w-8 h-8 text-white" />
-                    </div>
-                  </motion.div>
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-xl bg-gradient-to-br from-brand-500 to-brand-600 p-3 sm:p-4 shadow-lg">
+                    <FeatureIcon className="w-8 h-8 text-white" />
+                  </div>
                   <h4 className="text-lg sm:text-xl font-semibold text-slate-900 mb-2 sm:mb-3">{feature.title}</h4>
                   <p className="text-sm sm:text-base text-slate-600 leading-relaxed">{feature.description}</p>
                 </motion.div>
               );
             })}
+          </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Integration Logos Section */}
+      <motion.section 
+        className="py-16 sm:py-20 bg-gray-50 relative overflow-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={staggerContainer}
+      >
+        <div className="container mx-auto px-4">
+          <motion.div 
+            className="text-center mb-12"
+            variants={fadeInUp}
+          >
+            <motion.h3 
+              className="text-2xl sm:text-3xl md:text-4xl font-kanit font-bold tracking-tight text-slate-900 mb-4 uppercase"
+            >
+              We Integrate With
+            </motion.h3>
+            <motion.p 
+              className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl mx-auto"
+            >
+              Connect seamlessly with the tools your team already uses and loves
+            </motion.p>
+          </motion.div>
+
+          {/* Logo Grid */}
+          <motion.div 
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8 sm:gap-12 max-w-6xl mx-auto items-center"
+            variants={staggerContainer}
+          >
+            {[
+              { name: "Gmail", logo: "/Gmail.png", alt: "Gmail", url: "https://gmail.com" },
+              { name: "Outlook", logo: "/outlook-com.svg", alt: "Outlook", url: "https://outlook.com" },
+              { name: "HubSpot", logo: "/hubspot.svg", alt: "HubSpot", url: "https://hubspot.com" },
+              { name: "Slack", logo: "/Slack.png", alt: "Slack", url: "https://slack.com" },
+              { name: "Salesforce", logo: "/Salesforce.png", alt: "Salesforce", url: "https://salesforce.com" },
+              { name: "Shopify", logo: "/Shopify.png", alt: "Shopify", url: "https://shopify.com" },
+              { name: "Zapier", logo: "/zapier-logo.png", alt: "Zapier", url: "https://zapier.com" },
+              { name: "Zendesk", logo: "/Zendesk-Logo.png", alt: "Zendesk", url: "https://zendesk.com" },
+              { name: "Zoom", logo: "/zoom.png", alt: "Zoom", url: "https://zoom.us" },
+              { name: "WhatsApp", logo: "/whatsapp.svg", alt: "WhatsApp", url: "https://whatsapp.com" },
+              { name: "Mailchimp", logo: "/mailchimp.png", alt: "Mailchimp", url: "https://mailchimp.com" },
+              { name: "WooCommerce", logo: "/woocommerce.webp", alt: "WooCommerce", url: "https://woocommerce.com" }
+            ].map((integration, index) => (
+              <motion.div
+                key={integration.name}
+                variants={staggerChild}
+                className="flex items-center justify-center group"
+              >
+                <motion.a
+                  href={integration.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative w-full h-16 sm:h-20 flex items-center justify-center p-4 bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300 hover:shadow-md hover:scale-105 cursor-pointer"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                >
+                  <img
+                    src={integration.logo}
+                    alt={integration.alt}
+                    className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300"
+                  />
+                </motion.a>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Additional Text */}
+          <motion.div 
+            className="text-center mt-12"
+            variants={fadeInUp}
+          >
+            <motion.p 
+              className="text-sm sm:text-base text-slate-500"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+            >
+              And 50+ more integrations available through our API
+            </motion.p>
           </motion.div>
         </div>
       </motion.section>
@@ -619,13 +777,13 @@ export default function Home() {
             variants={fadeInUp}
           >
              <h2 className="text-3xl sm:text-4xl md:text-6xl font-kanit font-bold tracking-tight text-slate-900 mb-6 uppercase">
-               Trusted by Industry Leaders
+               Built for Modern
                <span className="bg-gradient-to-r from-brand-600 to-purple-600 bg-clip-text text-transparent block">
-                 Worldwide
+                 Businesses
                </span>
             </h2>
              <p className="text-xl text-slate-600 leading-relaxed">
-               Real performance metrics from companies transforming their customer experience
+               Powerful capabilities and integrations designed to transform your customer experience
             </p>
           </motion.div>
           
@@ -635,34 +793,34 @@ export default function Home() {
           >
             {[
               {
-                 value: "10M+",
-                 label: "Messages Processed",
-                 description: "Intelligent conversations handled",
-                 icon: MessageSquare,
+                 value: "50+",
+                 label: "Software Integrations",
+                 description: "Connect with your favorite tools",
+                 icon: Plug,
                  gradient: "from-brand-500 to-brand-600",
                  delay: 0
                },
                {
-                 value: "98.7%",
-                 label: "Accuracy Rate",
-                 description: "Precise answers delivered",
-                icon: Brain,
+                 value: "60s",
+                 label: "Setup Time",
+                 description: "From upload to deployment",
+                icon: Zap,
                  gradient: "from-brand-500 to-brand-600",
                  delay: 0.2
               },
               {
-                 value: "2.3s",
-                 label: "Avg Response Time",
-                 description: "Lightning-fast interactions",
-                icon: Zap,
+                 value: "Real-Time",
+                 label: "Analytics",
+                 description: "Detailed usage insights",
+                icon: BarChart3,
                  gradient: "from-brand-500 to-brand-600",
                  delay: 0.4
               },
               {
-                 value: "5,000+",
-                 label: "Active Companies",
-                 description: "Trusted worldwide",
-                icon: Globe,
+                 value: "100+",
+                 label: "File Formats",
+                 description: "PDF, DOC, TXT, and more",
+                icon: Database,
                  gradient: "from-brand-500 to-brand-600",
                  delay: 0.6
                }
@@ -672,18 +830,14 @@ export default function Home() {
                 <motion.div
                   key={index}
                   variants={staggerChild}
-                   className="group h-full"
+                   className="h-full"
                 >
                    <motion.div className="h-full">
-                     <Card className="relative border border-slate-200 bg-white hover:bg-slate-50 transition-all duration-500 rounded-2xl overflow-hidden group-hover:shadow-xl group-hover:shadow-brand-500/10 h-full">
+                     <Card className="relative border border-slate-200 bg-white rounded-2xl overflow-hidden h-full">
                        <CardContent className="p-6 text-center relative z-10 flex flex-col justify-center h-full min-h-[280px]">
-                         <motion.div 
-                           className={`w-16 h-16 rounded-xl bg-gradient-to-br ${stat.gradient} p-4 mb-6 mx-auto shadow-lg`}
-                           whileHover={{ scale: 1.05 }}
-                           transition={{ duration: 0.3 }}
-                         >
+                                                  <div className={`w-16 h-16 rounded-xl bg-gradient-to-br ${stat.gradient} p-4 mb-6 mx-auto shadow-lg`}>
                            <StatIcon className="h-8 w-8 text-white" />
-                         </motion.div>
+                          </div>
                          
                         <motion.div 
                            className={`text-4xl md:text-5xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent mb-2`}
@@ -744,8 +898,6 @@ export default function Home() {
            >
              <motion.div
                className="relative rounded-2xl shadow-xl border border-slate-200 overflow-hidden bg-white"
-               whileHover={{ scale: 1.01 }}
-               transition={{ type: "spring", stiffness: 300, damping: 30 }}
              >
                {/* Header */}
                <div className="relative flex items-center justify-between p-6 border-b border-slate-200 bg-slate-50">
@@ -775,114 +927,120 @@ export default function Home() {
                </div>
                
                {/* Interactive Chat */}
-               <div className="p-8 space-y-6 h-96 overflow-y-auto relative">
-                 <motion.div 
-                   className="flex items-start space-x-3"
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 0.5 }}
-                 >
-                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                     <Users className="w-4 h-4 text-gray-600" />
-                   </div>
-                   <div className="flex-1 bg-gray-50 rounded-2xl rounded-tl-sm p-4 max-w-xs">
-                     <p className="text-sm text-gray-700">What makes Executa different from other AI chatbot platforms?</p>
-                   </div>
-                 </motion.div>
-                 
-                 <motion.div 
-                   className="flex items-start space-x-3 justify-end"
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 1 }}
-                 >
-                   <div className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl rounded-tr-sm p-4 max-w-md">
-                     <p className="text-sm">Great question! Executa stands out in several key ways:</p>
-                     <ul className="text-sm mt-2 space-y-1">
-                       <li>• 60-second deployment vs hours/days with competitors</li>
-                       <li>• Context-aware conversations, not just Q&A</li>
-                       <li>• Enterprise security with startup simplicity</li>
-                       <li>• Advanced analytics to improve your content</li>
-                     </ul>
-                   </div>
+               <div 
+                 ref={chatContainerRef}
+                 className="p-8 space-y-6 h-96 overflow-y-auto relative"
+               >
+                 {/* Default welcome message */}
+                 {chatMessages.length === 0 && (
+                   <>
+                     <motion.div 
+                       className="flex items-start space-x-3"
+                       initial={{ opacity: 0, y: 20 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       transition={{ delay: 0.5 }}
+                     >
+                       <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                         <Bot className="w-4 h-4 text-white" />
+                       </div>
+                       <div className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl rounded-tl-sm p-4 max-w-md">
+                         <p className="text-sm">Hello! I'm Executa's AI assistant. Ask me anything about our platform, pricing, integrations, or how we can help your business!</p>
+                       </div>
+                     </motion.div>
+                     
+                     {/* Try it prompt */}
+                     <motion.div 
+                       className="text-center py-4"
+                       initial={{ opacity: 0 }}
+                       animate={{ opacity: 1 }}
+                       transition={{ delay: 1 }}
+                     >
+                       <motion.div
+                         className="inline-flex items-center text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-full border border-blue-200"
+                         animate={{ scale: [1, 1.05, 1] }}
+                         transition={{ duration: 2, repeat: Infinity }}
+                       >
+                         <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
+                         Try asking: "How much does it cost?" or "Can I integrate with my existing tools?"
+                       </motion.div>
+                     </motion.div>
+                   </>
+                 )}
+
+                 {/* Chat Messages */}
+                 {chatMessages.map((message, index) => (
                    <motion.div 
-                     className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0"
-                     animate={{ rotate: [0, 360] }}
-                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                     key={message.timestamp}
+                     className={`flex items-start space-x-3 ${message.role === 'assistant' ? '' : 'justify-end'}`}
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     transition={{ delay: 0.1 }}
                    >
-                     <Bot className="w-4 h-4 text-white" />
+                     {message.role === 'assistant' && (
+                       <motion.div 
+                         className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0"
+                         animate={{ rotate: [0, 360] }}
+                         transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                       >
+                         <Bot className="w-4 h-4 text-white" />
+                       </motion.div>
+                     )}
+                     
+                     <div className={`flex-1 ${message.role === 'user' ? 'bg-gray-50 rounded-2xl rounded-tr-sm max-w-xs ml-auto' : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl rounded-tl-sm max-w-md'} p-4`}>
+                       <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                     </div>
+                     
+                     {message.role === 'user' && (
+                       <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                         <Users className="w-4 h-4 text-gray-600" />
+                       </div>
+                     )}
                    </motion.div>
-                 </motion.div>
-                 
-                 <motion.div 
-                   className="flex items-start space-x-3"
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 1.5 }}
-                 >
-                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                     <Users className="w-4 h-4 text-gray-600" />
-                   </div>
-                   <div className="flex-1 bg-gray-50 rounded-2xl rounded-tl-sm p-4 max-w-xs">
-                     <p className="text-sm text-gray-700">How accurate are the responses?</p>
-                   </div>
-                 </motion.div>
-                 
-                 <motion.div 
-                   className="flex items-start space-x-3 justify-end"
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   transition={{ delay: 2 }}
-                 >
-                   <div className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl rounded-tr-sm p-4 max-w-md">
-                     <p className="text-sm">We maintain a 98.7% accuracy rate! Our AI is powered by GPT-4 and fine-tuned specifically for your content. Plus, you can train it further with feedback to make it even more accurate for your specific use case. 🎯</p>
-                   </div>
+                 ))}
+
+                 {/* Loading indicator */}
+                 {isLoading && (
                    <motion.div 
-                     className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0"
-                     animate={{ rotate: [0, 360] }}
-                     transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                     className="flex items-start space-x-3"
+                     initial={{ opacity: 0, y: 20 }}
+                     animate={{ opacity: 1, y: 0 }}
                    >
-                     <Bot className="w-4 h-4 text-white" />
+                     <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                       <Loader2 className="w-4 h-4 text-white animate-spin" />
+                     </div>
+                     <div className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl rounded-tl-sm p-4 max-w-md">
+                       <p className="text-sm">Thinking...</p>
+                     </div>
                    </motion.div>
-                 </motion.div>
-                 
-                 {/* Try it prompt */}
-                 <motion.div 
-                   className="text-center py-4"
-                   initial={{ opacity: 0 }}
-                   animate={{ opacity: 1 }}
-                   transition={{ delay: 2.5 }}
-                 >
-                   <motion.div
-                     className="inline-flex items-center text-sm text-gray-500 bg-blue-50 px-4 py-2 rounded-full border border-blue-200"
-                     animate={{ scale: [1, 1.05, 1] }}
-                     transition={{ duration: 2, repeat: Infinity }}
-                   >
-                     <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
-                     Try asking: "How much does it cost?" or "Can I integrate with my existing tools?"
-                   </motion.div>
-                 </motion.div>
+                 )}
                </div>
                
                {/* Input area */}
                <div className="p-6 border-t border-gray-100 bg-white/80 backdrop-blur-sm">
-                 <motion.div 
-                   className="flex items-center space-x-3"
-                   whileHover={{ scale: 1.01 }}
-                 >
+                 <div className="flex items-center space-x-3">
                    <input 
                      type="text" 
+                     value={inputMessage || ''}
+                     onChange={(e) => setInputMessage(e.target.value || '')}
+                     onKeyPress={handleKeyPress}
                      placeholder="Ask me anything about Executa..."
                      className="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     disabled={isLoading}
                    />
                    <motion.button 
-                     className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-xl hover:shadow-lg transition-all duration-200"
-                     whileHover={{ scale: 1.05 }}
-                     whileTap={{ scale: 0.95 }}
+                     onClick={sendMessage}
+                     disabled={!inputMessage.trim() || isLoading}
+                     className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-3 rounded-xl hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                     whileHover={!isLoading && inputMessage.trim() ? { scale: 1.05 } : {}}
+                     whileTap={!isLoading && inputMessage.trim() ? { scale: 0.95 } : {}}
                    >
-                     <ArrowRight className="w-4 h-4" />
+                     {isLoading ? (
+                       <Loader2 className="w-4 h-4 animate-spin" />
+                     ) : (
+                       <ArrowRight className="w-4 h-4" />
+                     )}
                    </motion.button>
-                 </motion.div>
+                 </div>
                  <p className="text-xs text-gray-500 mt-2 text-center">
                    This is a live demo connected to our actual AI assistant!
                  </p>
@@ -974,8 +1132,8 @@ export default function Home() {
                   "Custom integrations",
                   "SLA guarantee"
                 ],
-                cta: "Contact Sales",
-                href: "/contact",
+                cta: "Join Waitlist",
+                href: "/waitlist",
                 gradient: "from-brand-500 to-brand-600"
               }
             ].map((plan, index) => (
@@ -984,15 +1142,9 @@ export default function Home() {
                 variants={staggerChild}
                 className="group"
               >
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.02,
-                    y: -4
-                  }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
+                <motion.div>
                   <Card 
-                    className={`relative rounded-2xl shadow-lg hover:shadow-xl transition-all duration-500 h-full overflow-visible bg-white border border-slate-200 ${plan.popular ? 'ring-2 ring-brand-500/50 scale-105' : ''}`}
+                    className={`relative rounded-2xl shadow-lg h-full overflow-visible bg-white border border-slate-200 ${plan.popular ? 'ring-2 ring-brand-500/50 scale-105' : ''}`}
                   >
                     <CardHeader className="text-center pb-8 relative z-10">
                       {plan.popular && (
@@ -1008,17 +1160,14 @@ export default function Home() {
                         </motion.div>
                       )}
                       <CardTitle className="text-2xl mb-4 text-slate-900">{plan.name}</CardTitle>
-                      <motion.div 
-                        className="mb-4"
-                        whileHover={{ scale: 1.05 }}
-                      >
+                      <div className="mb-4">
                         <span className={`text-5xl font-bold bg-gradient-to-r ${plan.gradient} bg-clip-text text-transparent`}>
                           {plan.price}
                         </span>
                         {plan.price !== "Free" && plan.price !== "Custom" && (
                           <span className="text-slate-500">/month</span>
                         )}
-                      </motion.div>
+                      </div>
                       <CardDescription className="text-base text-slate-600">{plan.description}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6 relative z-10">
@@ -1156,16 +1305,11 @@ export default function Home() {
                  <motion.div
                    key={index}
                    variants={staggerChild}
-                   className="text-center group"
+                   className="text-center"
                  >
-                   <motion.div
-                     whileHover={{ scale: 1.05 }}
-                     transition={{ type: "spring", stiffness: 400 }}
-                   >
-                     <div className={`w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br ${feature.color} p-4 group-hover:shadow-xl group-hover:shadow-brand-500/25 transition-all duration-300 shadow-lg`}>
-                       <feature.icon className="w-8 h-8 text-white" />
-          </div>
-                   </motion.div>
+                   <div className={`w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br ${feature.color} p-4 shadow-lg`}>
+                     <feature.icon className="w-8 h-8 text-white" />
+                   </div>
                    <h4 className="text-lg font-semibold text-slate-900 mb-2">{feature.title}</h4>
                    <p className="text-slate-600 text-sm">{feature.description}</p>
                  </motion.div>
