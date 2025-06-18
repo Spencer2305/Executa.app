@@ -299,7 +299,7 @@ export default function Home() {
           >
             {/* Central timeline line */}
             <motion.div 
-              className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-brand-400 via-brand-500 to-brand-600 rounded-full"
+              className="absolute left-1/2 transform -translate-x-0.5 w-1 bg-gradient-to-b from-brand-400 via-brand-500 to-brand-600 rounded-full"
               style={{ height: "calc(100% - 80px)", top: "40px" }}
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
@@ -314,7 +314,7 @@ export default function Home() {
                 title: "Upload Your Knowledge",
                 description: "Simply drag and drop your documents, PDFs, FAQs, or paste your content. Our AI instantly learns from your materials and transforms them into an intelligent knowledge base.",
                 features: ["Multiple file formats", "Bulk upload support", "Auto-processing", "Instant training"],
-                color: "from-blue-500 to-blue-600",
+                color: "from-purple-500 to-purple-600",
                 delay: 0.2
               },
               {
@@ -323,7 +323,7 @@ export default function Home() {
                 title: "Connect Your Tools",
                 description: "Seamlessly integrate with your existing workflow. Connect Gmail, HubSpot, Monday.com, Shopify, and 50+ other platforms to supercharge your AI assistant.",
                 features: ["Gmail integration", "CRM connections", "E-commerce platforms", "Project management tools"],
-                color: "from-green-500 to-green-600",
+                color: "from-purple-500 to-purple-600",
                 delay: 0.4
               },
               {
@@ -339,11 +339,11 @@ export default function Home() {
               <motion.div
                 key={index}
                 variants={staggerChild}
-                className="relative flex items-center mb-16 last:mb-0"
+                className="relative mb-16 last:mb-0"
               >
-                {/* Step indicator */}
+                {/* Step indicator - centered */}
                 <motion.div
-                  className="absolute left-1/2 transform -translate-x-1/2 z-20"
+                  className="absolute left-1/2 top-0 transform -translate-x-1/2 z-20 flex flex-col items-center"
                   initial={{ scale: 0, rotate: -180 }}
                   whileInView={{ scale: 1, rotate: 0 }}
                   transition={{ delay: item.delay, duration: 0.6, type: "spring", stiffness: 200 }}
@@ -364,7 +364,7 @@ export default function Home() {
 
                 {/* Content card - alternating sides */}
                 <motion.div
-                  className={`w-5/12 ${index % 2 === 0 ? 'mr-auto pr-8' : 'ml-auto pl-8'}`}
+                  className={`w-5/12 ${index % 2 === 0 ? 'mr-auto pr-8' : 'ml-auto pl-8'} mt-0`}
                   initial={{ 
                     opacity: 0, 
                     x: index % 2 === 0 ? -50 : 50,
