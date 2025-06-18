@@ -111,6 +111,11 @@ This person has joined the Executa AI waitlist and is interested in early access
     console.log('--- END ---');
 
     // Add to Mailchimp if configured
+    console.log('Checking Mailchimp configuration...');
+    console.log('MAILCHIMP_API_KEY exists:', !!process.env.MAILCHIMP_API_KEY);
+    console.log('MAILCHIMP_SERVER_PREFIX exists:', !!process.env.MAILCHIMP_SERVER_PREFIX);
+    console.log('MAILCHIMP_LIST_ID exists:', !!process.env.MAILCHIMP_LIST_ID);
+    
     if (configureMailchimp()) {
       console.log('Adding to Mailchimp...');
       const [firstName, ...lastNameParts] = name.split(' ');
@@ -124,6 +129,11 @@ This person has joined the Executa AI waitlist and is interested in early access
       }
     } else {
       console.log('Mailchimp not configured - skipping');
+      console.log('Missing variables:', {
+        api_key: !process.env.MAILCHIMP_API_KEY,
+        server_prefix: !process.env.MAILCHIMP_SERVER_PREFIX,
+        list_id: !process.env.MAILCHIMP_LIST_ID
+      });
     }
 
     // TODO: When ready for production, uncomment the email sending code below
@@ -163,4 +173,17 @@ This person has joined the Executa AI waitlist and is interested in early access
       { status: 500 }
     );
   }
+}
+
+// GET endpoint to check configuration
+export async function GET() {
+  return NextResponse.json({
+    message: 'Waitlist API is working',
+    mailchimp_configured: configureMailchimp(),
+    environment_variables: {
+      MAILCHIMP_API_KEY: !!process.env.MAILCHIMP_API_KEY,
+      MAILCHIMP_SERVER_PREFIX: !!process.env.MAILCHIMP_SERVER_PREFIX,
+      MAILCHIMP_LIST_ID: !!process.env.MAILCHIMP_LIST_ID,
+    }
+  });
 } 
