@@ -42,30 +42,61 @@ const addToMailchimp = async (email: string, firstName: string, lastName: string
   try {
     const listId = process.env.MAILCHIMP_LIST_ID;
     if (!listId) {
-      console.log('Mailchimp list ID not configured');
+      console.log('❌ Mailchimp list ID not configured');
       return false;
     }
 
-    const response = await mailchimp.lists.addListMember(listId, {
+    console.log('🔍 Attempting to add to Mailchimp:', {
+      email,
+      firstName,
+      lastName,
+      company,
+      listId: listId.substring(0, 5) + '...' // Show partial list ID for debugging
+    });
+
+    const memberData = {
       email_address: email,
-      status: 'subscribed',
+      status: 'subscribed' as const,
       merge_fields: {
         FNAME: firstName,
         LNAME: lastName,
         COMPANY: company,
       },
       tags: ['Waitlist', 'Executa-AI']
-    });
+    };
 
-    console.log('Successfully added to Mailchimp:', email);
+    console.log('📤 Sending to Mailchimp:', memberData);
+
+    const response = await mailchimp.lists.addListMember(listId, memberData);
+
+    console.log('✅ Successfully added to Mailchimp:', email);
+    console.log('📊 Mailchimp response status:', response);
     return true;
   } catch (error: any) {
-    console.error('Mailchimp error:', error);
+    console.error('❌ Mailchimp error details:', {
+      status: error.status,
+      title: error.response?.body?.title,
+      detail: error.response?.body?.detail,
+      errors: error.response?.body?.errors,
+      message: error.message,
+      fullError: error
+    });
+    
     // If contact already exists, that's okay
     if (error.status === 400 && error.response?.body?.title === 'Member Exists') {
-      console.log('Contact already exists in Mailchimp');
+      console.log('✅ Contact already exists in Mailchimp - that\'s OK');
       return true;
     }
+    
+    // Log specific error types
+    if (error.status === 400) {
+      console.error('🚨 Bad Request - Check your List ID and API key permissions');
+    } else if (error.status === 401) {
+      console.error('🚨 Unauthorized - Check your API key');
+    } else if (error.status === 404) {
+      console.error('🚨 Not Found - Check your List ID');
+    }
+    
     return false;
   }
 };
